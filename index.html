@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pitstop Hero · BFS ERP-PILOT — Live Business Overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink:#030508; --navy-1:#0A1628; --navy-2:#111E2E; --navy-3:#1E2D3F;
+      --ivory:#F0EBE3; --ivory-dim:rgba(240,235,227,0.6);
+      --gold:#C9A96E; --gold-dim:rgba(201,169,110,0.4); --cyan:#5BA4B4;
+      --hairline:rgba(240,235,227,0.15);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body {
+      background:var(--ink); color:var(--ivory);
+      font-family:'Inter', system-ui, sans-serif; font-weight:300;
+      line-height:1.6; -webkit-font-smoothing:antialiased;
+    }
+    a { color:inherit; text-decoration:none; }
+
+    /* ---------- NAV ---------- */
+    .nav {
+      position:fixed; top:0; left:0; right:0; z-index:100;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1.1rem 8vw;
+      background:rgba(3,5,8,0.55); backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--hairline);
+    }
+    .nav .brand {
+      font-family:'Cormorant Garamond', serif; font-weight:400;
+      font-size:1.35rem; letter-spacing:0.02em; color:var(--ivory);
+    }
+    .nav .brand b { color:var(--gold); font-weight:400; }
+    .nav .links { display:flex; gap:2rem; align-items:center; }
+    .nav .links a {
+      font-family:'JetBrains Mono', monospace; font-size:0.62rem;
+      letter-spacing:0.18em; text-transform:uppercase; color:var(--ivory-dim);
+      transition:color .3s ease;
+    }
+    .nav .links a:hover { color:var(--gold); }
+    .nav .links a.cta {
+      color:var(--ink); background:var(--gold); padding:0.55rem 1rem;
+      border-radius:2px; transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .nav .links a.cta:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(201,169,110,0.35); color:var(--ink); }
+    @media (max-width:880px) {
+      .nav { padding:0.9rem 6vw; }
+      .nav .links a:not(.cta) { display:none; }
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      position:relative; min-height:100vh; display:flex; align-items:center;
+      padding:8rem 8vw 6rem; overflow:hidden;
+      background:
+        radial-gradient(1200px 700px at 80% -10%, rgba(201,169,110,0.10), transparent 55%),
+        radial-gradient(900px 600px at -10% 30%, rgba(91,164,180,0.07), transparent 55%),
+        linear-gradient(180deg, var(--navy-1) 0%, var(--ink) 100%);
+    }
+    .hero::after {
+      content:""; position:absolute; inset:0; pointer-events:none; opacity:0.03;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .hero-inner { position:relative; max-width:1200px; margin:0 auto; width:100%; }
+    .hero .eyebrow {
+      font-family:'JetBrains Mono', monospace; font-size:0.62rem;
+      letter-spacing:0.28em; text-transform:uppercase; color:var(--gold);
+      margin-bottom:1.6rem;
+    }
+    .hero h1 {
+      font-family:'Cormorant Garamond', serif; font-weight:300;
+      font-size:clamp(2.6rem, 7vw, 5.4rem); line-height:1.04;
+      letter-spacing:-0.01em; color:var(--ivory); max-width:16ch;
+    }
+    .hero h1 em { font-style:italic; color:var(--gold); }
+    .hero .sub {
+      margin:2rem 0 3rem; max-width:54ch; font-size:1.05rem;
+      color:var(--ivory-dim);
+    }
+    .hero .cta-row { display:flex; gap:1rem; flex-wrap:wrap; }
+    .hero .btn {
+      font-family:'JetBrains Mono', monospace; font-size:0.64rem;
+      letter-spacing:0.18em; text-transform:uppercase;
+      padding:0.95rem 1.6rem; border-radius:2px; transition:transform .2s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+    .hero .btn.gold { background:var(--gold); color:var(--ink); }
+    .hero .btn.gold:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(201,169,110,0.4); }
+    .hero .btn.ghost { border:1px solid var(--gold-dim); color:var(--ivory); }
+    .hero .btn.ghost:hover { border-color:var(--gold); transform:translateY(-2px); }
+
+    /* live stat strip */
+    .hero .stats {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+      margin-top:4.5rem; border:1px solid var(--hairline); border-radius:4px; overflow:hidden;
+      background:var(--hairline);
+    }
+    .hero .stat { background:rgba(10,22,40,0.6); padding:1.6rem 1.4rem; }
+    .hero .stat b {
+      display:block; font-family:'Cormorant Garamond', serif; font-weight:400;
+      font-size:2.6rem; line-height:1; color:var(--gold);
+    }
+    .hero .stat span {
+      font-family:'JetBrains Mono', monospace; font-size:0.56rem;
+      letter-spacing:0.14em; text-transform:uppercase; color:var(--ivory-dim);
+    }
+    @media (max-width:880px) { .hero .stats { grid-template-columns:repeat(2,1fr); } }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a class="brand" href="#hero">Pitstop <b>Hero</b> · BFS</a>
+    <div class="links">
+      <a href="#sso">SSO</a>
+      <a href="#whatsapp">Care</a>
+      <a href="#events">Events</a>
+      <a href="#booking">Booking</a>
+      <a href="#packages">Packages</a>
+      <a class="cta" href="#booking">Live Overview</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="hero" class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">BFS ERP-PILOT · Live Business Overview</p>
+      <h1>Your workshop, <em>alive</em> — not a spreadsheet.</h1>
+      <p class="sub">
+        One screen that breathes with the business. Riders sign in, bikes get cared for,
+        events get chased, bays fill up — all steered from a single CRM that feels like a
+        command deck, not a tired old ERP form.
+      </p>
+      <div class="cta-row">
+        <a class="btn gold" href="#booking">See live bays</a>
+        <a class="btn ghost" href="#packages">View packages</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b>12,480</b><span>Active Riders</span></div>
+        <div class="stat"><b>4</b><span>Events Tracked</span></div>
+        <div class="stat"><b>38</b><span>Bays · Live</span></div>
+        <div class="stat"><b>2,640</b><span>Km Avg / Service</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECTION 1: Google SSO + Demographic Mapping -->
+  <section id="sso">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400&family=JetBrains+Mono:wght@400&display=swap');
+      #sso { --sso-hairline: rgba(240,235,227,0.15);
+        background: radial-gradient(120% 80% at 80% -10%, rgba(201,169,110,0.06), transparent 60%), linear-gradient(180deg, var(--navy-1) 0%, var(--navy-2) 100%);
+        color: var(--ivory); padding: 9vw 8vw; font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.6; }
+      #sso .sso-inner { max-width: 1200px; margin: 0 auto; }
+      #sso .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 1.2rem; }
+      #sso h2 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.05; margin: 0 0 1.5rem; color: var(--ivory); }
+      #sso h2 em { color: var(--gold); font-style: italic; }
+      #sso .lead { color: var(--ivory-dim); max-width: 52ch; margin: 0 0 3.5rem; font-size: 0.98rem; }
+      #sso .sso-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4vw; align-items: start; }
+      #sso .divider { height: 1px; background: var(--sso-hairline); margin: 0 0 2.5rem; }
+      #sso .gbtn { display: inline-flex; align-items: center; gap: 0.85rem; padding: 0.95rem 1.6rem; background: rgba(240,235,227,0.04); border: 1px solid var(--gold-dim); border-radius: 2px; cursor: pointer; transition: border-color .3s ease, background .3s ease, transform .3s ease; width: 100%; max-width: 340px; text-decoration: none; }
+      #sso .gbtn:hover { border-color: var(--gold); background: rgba(201,169,110,0.08); transform: translateY(-2px); }
+      #sso .gmark { width: 22px; height: 22px; flex: 0 0 auto; }
+      #sso .gbtn span { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 0.92rem; color: var(--ivory); letter-spacing: 0.02em; }
+      #sso .sso-note { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ivory-dim); margin: 1.1rem 0 2.5rem; }
+      #sso .rider-cards { display: grid; gap: 1.1rem; }
+      #sso .rider { display: grid; grid-template-columns: 56px 1fr; gap: 1.1rem; align-items: center; padding: 1.2rem 1.4rem; background: rgba(30,45,63,0.35); border: 1px solid var(--sso-hairline); border-radius: 3px; transition: border-color .3s ease; }
+      #sso .rider:hover { border-color: var(--gold-dim); }
+      #sso .avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--gold) 0%, var(--navy-3) 100%); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--ink); font-weight: 400; }
+      #sso .rider-name { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 400; color: var(--ivory); line-height: 1.1; }
+      #sso .rider-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); margin-top: 0.25rem; }
+      #sso .tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.7rem; }
+      #sso .tag { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ivory); border: 1px solid var(--gold-dim); padding: 0.3rem 0.6rem; border-radius: 2px; background: rgba(201,169,110,0.06); }
+      #sso .map-panel { background: rgba(10,22,40,0.55); border: 1px solid var(--sso-hairline); border-radius: 3px; padding: 2.2rem 2rem; }
+      #sso .map-head { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 0.6rem; }
+      #sso .map-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 1.9rem; margin: 0 0 1.8rem; color: var(--ivory); }
+      #sso .stat-group { margin-bottom: 1.8rem; }
+      #sso .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ivory-dim); margin-bottom: 0.8rem; }
+      #sso .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+      #sso .tile { background: rgba(30,45,63,0.4); border: 1px solid var(--sso-hairline); border-radius: 2px; padding: 0.9rem 0.8rem; transition: border-color .3s ease; }
+      #sso .tile:hover { border-color: var(--gold-dim); }
+      #sso .tile b { display: block; font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 1.6rem; color: var(--gold); line-height: 1; }
+      #sso .tile span { font-family: 'Inter', sans-serif; font-size: 0.7rem; color: var(--ivory-dim); }
+      #sso .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      #sso .chip { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; color: var(--ivory); border: 1px solid var(--sso-hairline); padding: 0.45rem 0.8rem; border-radius: 999px; background: rgba(91,164,180,0.08); }
+      #sso .chip.big { color: var(--gold); border-color: var(--gold-dim); }
+      #sso .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
+      #sso .reveal.in { opacity: 1; transform: none; }
+      @media (max-width: 880px) { #sso .sso-grid { grid-template-columns: 1fr; gap: 3rem; } #sso .tiles { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+    <div class="sso-inner">
+      <p class="eyebrow reveal">Module 01 — Customer Acquisition</p>
+      <h2 class="reveal">Google SSO & <em>Demographic Mapping</em></h2>
+      <p class="lead reveal">Riders register in one click on the Pitstop Hero site. Verified Google identity flows straight into the CRM <em>Customer Lead</em> module — linking profile IDs to vehicle registration, segmenting by bike, age and region.</p>
+      <div class="sso-grid">
+        <div class="reveal">
+          <a class="gbtn" href="#" role="button" aria-label="Sign in with Google">
+            <svg class="gmark" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <span>Sign in with Google</span>
+          </a>
+          <p class="sso-note">OAuth 2.0 · Verified profile · Zero-touch onboarding</p>
+          <div class="rider-cards">
+            <div class="rider">
+              <div class="avatar">AF</div>
+              <div>
+                <div class="rider-name">Aiman Faris</div>
+                <div class="rider-meta">22 · Age Range 18–24</div>
+                <div class="tags"><span class="tag">Yamaha Y15ZR</span><span class="tag">Klang Valley</span><span class="tag">Commuter</span></div>
+              </div>
+            </div>
+            <div class="rider">
+              <div class="avatar">RS</div>
+              <div>
+                <div class="rider-name">Rozlan Shah</div>
+                <div class="rider-meta">40 · Age Range 36–45</div>
+                <div class="tags"><span class="tag">BMW R1250GS</span><span class="tag">Penang</span><span class="tag">Touring</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="map-panel reveal">
+          <p class="map-head">Demographic Mapping</p>
+          <h3 class="map-title">Segmented by the ride, not the form</h3>
+          <div class="stat-group">
+            <div class="stat-label">By Bike Type</div>
+            <div class="tiles">
+              <div class="tile"><b>38%</b><span>Kapcai / Underbone</span></div>
+              <div class="tile"><b>27%</b><span>Sport 250–400</span></div>
+              <div class="tile"><b>35%</b><span>Touring / ADV</span></div>
+            </div>
+          </div>
+          <div class="stat-group">
+            <div class="stat-label">By Age Bracket</div>
+            <div class="tiles">
+              <div class="tile"><b>42%</b><span>18–24</span></div>
+              <div class="tile"><b>33%</b><span>25–35</span></div>
+              <div class="tile"><b>25%</b><span>36–55</span></div>
+            </div>
+          </div>
+          <div class="stat-group">
+            <div class="stat-label">By Region (MY)</div>
+            <div class="chips">
+              <span class="chip big">Klang Valley 51%</span>
+              <span class="chip">Penang 21%</span>
+              <span class="chip">Johor 16%</span>
+              <span class="chip">Ipoh 7%</span>
+              <span class="chip">Kota Kinabalu 5%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>(function(){var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}})},{threshold:0.12});document.querySelectorAll('#sso .reveal').forEach(function(el){io.observe(el);});})();</script>
+  </section>
+
+  <!-- SECTION 2: WhatsApp Mileage Reminders -->
+  <section id="whatsapp">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Inter:wght@300;400&family=JetBrains+Mono:wght@400&display=swap');
+      #whatsapp { --wa-hairline: rgba(240,235,227,0.15);
+        background: radial-gradient(120% 80% at 15% -10%, rgba(91,164,180,0.06), transparent 55%), linear-gradient(180deg, var(--navy-2) 0%, var(--navy-1) 100%);
+        color: var(--ivory); padding: 9vw 8vw; font-family: 'Inter', sans-serif; font-weight: 300; line-height: 1.6; }
+      #whatsapp .wa-inner { max-width: 1200px; margin: 0 auto; }
+      #whatsapp .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 1.2rem; }
+      #whatsapp h2 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.05; margin: 0 0 1.5rem; color: var(--ivory); }
+      #whatsapp h2 em { color: var(--gold); font-style: italic; }
+      #whatsapp .lead { color: var(--ivory-dim); max-width: 54ch; margin: 0 0 3.5rem; font-size: 0.98rem; }
+      #whatsapp .wa-grid { display: grid; grid-template-columns: 360px 1fr; gap: 4vw; align-items: center; }
+      #whatsapp .phone { background: linear-gradient(180deg, #0C1A2C 0%, #0A1628 100%); border: 1px solid var(--wa-hairline); border-radius: 26px; padding: 0.9rem; box-shadow: 0 30px 60px rgba(0,0,0,0.45); position: relative; }
+      #whatsapp .phone-bar { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.6rem 0.9rem; border-bottom: 1px solid var(--wa-hairline); margin-bottom: 1rem; }
+      #whatsapp .phone-dot { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--gold) 0%, var(--navy-3) 100%); display: grid; place-items: center; font-family: 'Cormorant Garamond', serif; color: var(--ink); font-size: 1.1rem; }
+      #whatsapp .phone-bar b { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 0.85rem; color: var(--ivory); }
+      #whatsapp .phone-bar span { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); }
+      #whatsapp .chat { display: flex; flex-direction: column; gap: 0.9rem; padding: 0 0.3rem 0.5rem; }
+      #whatsapp .bubble { max-width: 86%; padding: 0.8rem 0.95rem; border-radius: 12px; font-size: 0.82rem; background: rgba(30,45,63,0.65); border: 1px solid var(--wa-hairline); color: var(--ivory); align-self: flex-start; position: relative; }
+      #whatsapp .bubble.oil { border-left: 2px solid var(--gold); background: rgba(201,169,110,0.08); }
+      #whatsapp .bubble.re { border-left: 2px solid var(--cyan); }
+      #whatsapp .bubble .time { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; letter-spacing: 0.1em; color: var(--ivory-dim); margin-top: 0.55rem; text-align: right; }
+      #whatsapp .bubble .variant { font-family: 'JetBrains Mono', monospace; font-size: 0.46rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.45rem; }
+      #whatsapp .bubble.re .variant { color: var(--cyan); }
+      #whatsapp .est { padding: 0.4rem 0.2rem; }
+      #whatsapp .est-head { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 0.6rem; }
+      #whatsapp .est-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 1.9rem; margin: 0 0 1.6rem; color: var(--ivory); }
+      #whatsapp .odo { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 1.8rem; }
+      #whatsapp .odo b { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 3.2rem; line-height: 1; color: var(--gold); }
+      #whatsapp .odo span { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ivory-dim); }
+      #whatsapp .gauge { position: relative; height: 14px; border-radius: 999px; background: rgba(240,235,227,0.08); border: 1px solid var(--wa-hairline); overflow: hidden; margin-bottom: 0.6rem; }
+      #whatsapp .gauge .fill { position: absolute; inset: 0 100% 0 0; background: linear-gradient(90deg, var(--cyan) 0%, var(--gold) 100%); transition: right 1.1s cubic-bezier(.22,1,.36,1); }
+      #whatsapp .window { position: relative; height: 20px; margin-bottom: 1.4rem; }
+      #whatsapp .window .band { position: absolute; top: 0; bottom: 0; background: rgba(201,169,110,0.14); border-left: 1px dashed var(--gold-dim); border-right: 1px dashed var(--gold-dim); }
+      #whatsapp .scale { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em; color: var(--ivory-dim); margin-bottom: 1.8rem; }
+      #whatsapp .status { padding: 1rem 1.2rem; border: 1px solid var(--gold-dim); border-radius: 3px; background: rgba(201,169,110,0.06); font-size: 0.82rem; color: var(--ivory); }
+      #whatsapp .status b { color: var(--gold); font-weight: 400; }
+      #whatsapp .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
+      #whatsapp .reveal.in { opacity: 1; transform: none; }
+      @media (max-width: 880px) { #whatsapp .wa-grid { grid-template-columns: 1fr; gap: 3rem; } #whatsapp .phone { max-width: 360px; margin: 0 auto; } }
+    </style>
+    <div class="wa-inner">
+      <p class="eyebrow reveal">Module 02 — Proactive Care</p>
+      <h2 class="reveal">Dynamic <em>WhatsApp</em> Mileage Reminders</h2>
+      <p class="lead reveal">Technicians log odometer readings in the CRM. We estimate average daily commute and trigger a personal WhatsApp alert as the bike nears its 2,000–3,000 km oil window — or a gentle re-engagement nudge after four quiet months.</p>
+      <div class="wa-grid">
+        <div class="phone reveal">
+          <div class="phone-bar">
+            <div class="phone-dot">B</div>
+            <div><b>BFS Pitstop Hero</b><span>WhatsApp Business</span></div>
+          </div>
+          <div class="chat">
+            <div class="bubble oil">
+              <span class="variant">Oil-Due · Variant A</span>
+              Hey Aiman, it's been 60 days since your last oil change at BFS Bangi. Your <b>Yamaha Y15ZR</b> is likely due for fresh oil! Book a 15-min express slot today and get a free chain adjustment.
+              <span class="time">09:41</span>
+            </div>
+            <div class="bubble re">
+              <span class="variant">Re-Engagement · Variant B</span>
+              We haven't seen your bike in a while! Is she resting in the garage? Drop by for a quick free safety inspection before your next weekend ride.
+              <span class="time">14:08</span>
+            </div>
+          </div>
+        </div>
+        <div class="est reveal">
+          <p class="est-head">Mileage Estimator</p>
+          <h3 class="est-title">Live oil-window tracking</h3>
+          <div class="odo"><b id="wa-odo">2,640</b><span>km since last service</span></div>
+          <div class="gauge"><div class="fill" id="wa-fill"></div></div>
+          <div class="window"><div class="band" style="left:66.6%; right:0;"></div></div>
+          <div class="scale"><span>0</span><span>1,000</span><span>2,000</span><span>3,000 km</span></div>
+          <div class="status"><b>Service window active.</b> At ~44 km/day, your next oil change is due in roughly <b>8 days</b>. Variant A alert queued for dispatch.</div>
+        </div>
+      </div>
+    </div>
+    <script>(function(){var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');var f=document.getElementById('wa-fill');if(f){var p=Math.min(2640/3000,1)*100;f.style.right=(100-p)+'%';}io.unobserve(x.target);}})},{threshold:0.15});document.querySelectorAll('#whatsapp .reveal').forEach(function(el){io.observe(el);});})();</script>
+  </section>
+
+  <!-- SECTION 3: AI Event Web-Scraper -->
+  <section id="events">
+    <style>
+      #events { --hairline: rgba(240,235,227,0.15);
+        font-family: 'Inter', system-ui, sans-serif;
+        background: radial-gradient(1200px 600px at 15% -10%, rgba(201,169,110,0.07), transparent 60%), radial-gradient(900px 500px at 110% 20%, rgba(91,164,180,0.06), transparent 55%), linear-gradient(180deg, var(--navy-1) 0%, var(--ink) 100%);
+        color: var(--ivory); padding: 7vw 8vw; position: relative; overflow: hidden; }
+      #events .wrap { max-width: 1200px; margin: 0 auto; }
+      #events .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 1rem; }
+      #events h2 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2rem, 4.5vw, 3.4rem); line-height: 1.05; margin: 0 0 0.8rem; color: var(--ivory); }
+      #events h2 em { font-style: italic; color: var(--gold); }
+      #events .lede { max-width: 680px; font-weight: 300; font-size: 1rem; line-height: 1.7; color: var(--ivory-dim); margin: 0 0 3.5rem; }
+      #events .pipeline { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 0; align-items: stretch; }
+      #events .stage { display: flex; flex-direction: column; background: linear-gradient(180deg, var(--navy-2) 0%, var(--navy-3) 100%); border: 1px solid var(--hairline); border-radius: 4px; padding: 1.8rem 1.6rem; position: relative; }
+      #events .stage .stage-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan); margin: 0 0 1rem; }
+      #events .stage h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 1.5rem; margin: 0 0 0.6rem; color: var(--ivory); }
+      #events .stage p { font-weight: 300; font-size: 0.86rem; line-height: 1.6; color: var(--ivory-dim); margin: 0 0 1.2rem; }
+      #events .connector { display: flex; align-items: center; justify-content: center; width: 56px; color: var(--gold); }
+      #events .connector svg { width: 28px; height: 28px; }
+      #events .scan-box { height: 64px; border: 1px solid var(--gold-dim); border-radius: 3px; position: relative; overflow: hidden; background: rgba(10,22,40,0.6); }
+      #events .scan-box::after { content:""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); box-shadow: 0 0 12px rgba(201,169,110,0.6); animation: scanline 2.4s ease-in-out infinite; }
+      @keyframes scanline { 0% { top: 4%; opacity: 0.3; } 50% { top: 92%; opacity: 1; } 100% { top: 4%; opacity: 0.3; } }
+      #events .scan-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: var(--ivory-dim); margin-top: 0.7rem; text-transform: uppercase; }
+      #events .ev-cards { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.2rem; }
+      #events .ev-card { background: rgba(3,5,8,0.45); border: 1px solid var(--hairline); border-left: 2px solid var(--gold); border-radius: 3px; padding: 0.8rem 0.9rem; }
+      #events .ev-card .ev-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--ivory); margin: 0 0 0.35rem; }
+      #events .ev-card .ev-date { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; margin: 0 0 0.5rem; }
+      #events .ev-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+      #events .ev-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ivory); background: rgba(91,164,180,0.12); border: 1px solid rgba(91,164,180,0.35); border-radius: 2px; padding: 0.25rem 0.5rem; }
+      #events .ev-tag.loc { background: rgba(201,169,110,0.1); border-color: var(--gold-dim); color: var(--gold); }
+      #events .blast { display: flex; align-items: flex-start; gap: 0.8rem; }
+      #events .blast .wa-avatar { flex: 0 0 auto; width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--cyan)); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--ink); font-weight: 700; }
+      #events .blast .wa-bubble { position: relative; background: linear-gradient(180deg, var(--navy-3), var(--navy-2)); border: 1px solid var(--gold-dim); border-radius: 3px 12px 12px 12px; padding: 1rem 1.1rem; font-weight: 300; font-size: 0.9rem; line-height: 1.6; color: var(--ivory); }
+      #events .blast .wa-bubble .wa-name { color: var(--gold); font-style: italic; }
+      #events .blast .wa-cta { display: inline; margin-top: 0.8rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); background: var(--gold); border-radius: 2px; padding: 0.5rem 0.9rem; text-decoration: none; }
+      #events .blast .wa-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ivory-dim); margin-top: 0.7rem; }
+      #events [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 0.8s ease, transform 0.8s ease; }
+      #events [data-reveal].in { opacity: 1; transform: none; }
+      @media (max-width: 880px) { #events .pipeline { grid-template-columns: 1fr; } #events .connector { width: 100%; height: 40px; transform: rotate(90deg); } #events .stage { padding: 1.4rem 1.2rem; } }
+    </style>
+    <div class="wrap">
+      <p class="eyebrow">Module 03 — BFS Local Event &amp; Activation Manager</p>
+      <h2 data-reveal>AI Event Scraper &amp; <em>targeted broadcast</em></h2>
+      <p class="lede" data-reveal>An autonomous AI agent sweeps motorsport calendars every fortnight — MotoMSF Superbikes, Sepang International Circuit fixtures, and local bike-fest meets — parsing dates, venues and target bike categories straight into the CRM. The Broadcast Engine then cross-references riders by region and fires precise WhatsApp activations.</p>
+      <div class="pipeline">
+        <div class="stage" data-reveal>
+          <p class="stage-tag">01 · Ingestion</p>
+          <h3>AI Agent Scanning</h3>
+          <p>Fortnightly sweep of event calendars, race portals and community feeds across Peninsular Malaysia.</p>
+          <div class="scan-box"></div>
+          <div class="scan-meta"><span>Cycle · 14d</span><span>3 sources live</span></div>
+        </div>
+        <div class="connector" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="stage" data-reveal>
+          <p class="stage-tag">02 · Parsed Pipeline</p>
+          <h3>Event Cards</h3>
+          <div class="ev-cards">
+            <div class="ev-card"><p class="ev-title">Penang Bike Culture Moto Fest</p><p class="ev-date">Jul 11–12 · 2026</p><div class="ev-tags"><span class="ev-tag loc">Penang</span><span class="ev-tag">Naked / Sport</span><span class="ev-tag">Cafe Racer</span></div></div>
+            <div class="ev-card"><p class="ev-title">MSF Superbikes @ Sepang</p><p class="ev-date">Aug 23 · 2026</p><div class="ev-tags"><span class="ev-tag loc">Sepang</span><span class="ev-tag">Supersport</span><span class="ev-tag">Track Day</span></div></div>
+            <div class="ev-card"><p class="ev-title">Klang Valley Night Ride Meet</p><p class="ev-date">Sep 05 · 2026</p><div class="ev-tags"><span class="ev-tag loc">Shah Alam</span><span class="ev-tag">Cruiser</span></div></div>
+          </div>
+        </div>
+        <div class="connector" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h15M13 6l6 6-6 6"/></svg></div>
+        <div class="stage" data-reveal>
+          <p class="stage-tag">03 · Broadcast</p>
+          <h3>Auto WhatsApp Blast</h3>
+          <div class="blast">
+            <div class="wa-avatar">BFS</div>
+            <div>
+              <div class="wa-bubble"><span class="wa-name">Hey [Name]!</span> BFS is heading to the Penang Moto Fest on July 11–12. Drop by our mobile pit booth for free tire pressure checks and express lube service.<br><a class="wa-cta" href="#">Tap here to reserve a trackside slot</a></div>
+              <p class="wa-meta">Targeted · Region: North · 1,284 riders matched</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>(function(){var els=document.querySelectorAll('#events [data-reveal]');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}var io=new IntersectionObserver(function(en){en.forEach(function(e,i){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('in');},i*90);io.unobserve(e.target);}});},{threshold:0.18});els.forEach(function(e){io.observe(e);});})();</script>
+  </section>
+
+  <!-- SECTION 4: Real-Time Slot Booking -->
+  <section id="booking">
+    <style>
+      #booking { --hairline: rgba(240,235,227,0.15);
+        font-family: 'Inter', system-ui, sans-serif;
+        background: radial-gradient(1000px 600px at 90% -10%, rgba(91,164,180,0.07), transparent 55%), radial-gradient(900px 500px at -5% 30%, rgba(201,169,110,0.06), transparent 55%), linear-gradient(180deg, var(--ink) 0%, var(--navy-1) 100%);
+        color: var(--ivory); padding: 7vw 8vw; position: relative; overflow: hidden; }
+      #booking .wrap { max-width: 1200px; margin: 0 auto; }
+      #booking .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 1rem; }
+      #booking h2 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2rem, 4.5vw, 3.4rem); line-height: 1.05; margin: 0 0 0.8rem; color: var(--ivory); }
+      #booking h2 em { font-style: italic; color: var(--gold); }
+      #booking .lede { max-width: 680px; font-weight: 300; font-size: 1rem; line-height: 1.7; color: var(--ivory-dim); margin: 0 0 2.5rem; }
+      #booking .demo-badge { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan); border: 1px solid rgba(91,164,180,0.4); border-radius: 2px; padding: 0.35rem 0.7rem; margin: 0 0 2.5rem; }
+      #booking .demo-badge::before { content:""; width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px rgba(91,164,180,0.7); }
+      #booking .split { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2.2rem; align-items: start; }
+      #booking .panel { background: linear-gradient(180deg, var(--navy-2), var(--navy-3)); border: 1px solid var(--hairline); border-radius: 4px; padding: 1.6rem 1.5rem; }
+      #booking .panel h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 1.5rem; margin: 0 0 0.3rem; color: var(--ivory); }
+      #booking .panel .panel-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ivory-dim); margin: 0 0 1.4rem; }
+      #booking .grid { display: grid; grid-template-columns: 64px repeat(3, 1fr); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: 3px; overflow: hidden; }
+      #booking .cell { background: var(--navy-2); padding: 0.6rem 0.5rem; font-size: 0.72rem; display: flex; align-items: center; justify-content: center; }
+      #booking .cell.head { background: var(--navy-3); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); font-weight: 400; }
+      #booking .cell.time { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--ivory-dim); justify-content: flex-start; }
+      #booking .cell.slot { cursor: pointer; transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease; position: relative; }
+      #booking .cell.slot.avail { background: rgba(201,169,110,0.14); color: var(--gold); box-shadow: inset 0 0 0 1px rgba(201,169,110,0.35); }
+      #booking .cell.slot.avail::after { content:"●"; font-size: 0.5rem; color: var(--gold); text-shadow: 0 0 8px rgba(201,169,110,0.7); margin-left: 0.35rem; }
+      #booking .cell.slot.avail:hover { transform: translateY(-2px); background: rgba(201,169,110,0.28); box-shadow: inset 0 0 0 1px var(--gold), 0 6px 18px rgba(201,169,110,0.25); }
+      #booking .cell.slot.booked { background: rgba(3,5,8,0.5); color: var(--ivory-dim); cursor: not-allowed; opacity: 0.55; text-decoration: line-through; }
+      #booking .legend { display: flex; gap: 1.4rem; margin-top: 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ivory-dim); }
+      #booking .legend span { display: flex; align-items: center; gap: 0.4rem; }
+      #booking .legend .dot { width: 9px; height: 9px; border-radius: 50%; }
+      #booking .legend .dot.a { background: var(--gold); box-shadow: 0 0 8px rgba(201,169,110,0.7); }
+      #booking .legend .dot.b { background: var(--ivory-dim); }
+      #booking .cal { display: flex; flex-direction: column; gap: 0.8rem; }
+      #booking .date-card { display: flex; gap: 1rem; align-items: center; background: rgba(3,5,8,0.4); border: 1px solid var(--hairline); border-left: 2px solid var(--cyan); border-radius: 3px; padding: 0.9rem 1rem; transition: transform 0.2s ease, border-color 0.2s ease; }
+      #booking .date-card:hover { transform: translateX(4px); border-left-color: var(--gold); }
+      #booking .date-card .dc-date { flex: 0 0 auto; text-align: center; width: 52px; border-right: 1px solid var(--hairline); padding-right: 0.8rem; }
+      #booking .date-card .dc-day { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; line-height: 1; color: var(--gold); }
+      #booking .date-card .dc-mon { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ivory-dim); margin-top: 0.2rem; }
+      #booking .date-card .dc-body .dc-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; color: var(--ivory); margin: 0 0 0.2rem; }
+      #booking .date-card .dc-body .dc-loc { font-family: 'JetBrains Mono', monospace; font-size: 0.56rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); }
+      #booking .event-cta { margin-top: 1.6rem; background: linear-gradient(135deg, rgba(201,169,110,0.16), rgba(91,164,180,0.08)); border: 1px solid var(--gold-dim); border-radius: 4px; padding: 1.3rem 1.3rem; text-align: center; }
+      #booking .event-cta p { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--ivory); margin: 0 0 0.9rem; font-weight: 400; }
+      #booking .event-cta p em { color: var(--gold); font-style: italic; }
+      #booking .event-cta a { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); background: var(--gold); border-radius: 2px; padding: 0.7rem 1.3rem; text-decoration: none; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+      #booking .event-cta a:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(201,169,110,0.35); }
+      #booking [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 0.8s ease, transform 0.8s ease; }
+      #booking [data-reveal].in { opacity: 1; transform: none; }
+      @media (max-width: 880px) { #booking .split { grid-template-columns: 1fr; gap: 1.6rem; } #booking .grid { grid-template-columns: 52px repeat(3, 1fr); } #booking .cell.head { font-size: 0.5rem; } }
+    </style>
+    <div class="wrap">
+      <p class="eyebrow">Module 04 — Live Lift Capacity Engine</p>
+      <h2 data-reveal>Real-Time Slot Booking &amp; <em>event calendar</em></h2>
+      <p class="lede" data-reveal>Authenticated riders see live service-bay availability across every BFS branch, booked in 15-minute express intervals with hard locks to prevent double-bookings. Pair it with an interactive motorsport calendar of every event BFS attends — and reserve a trackside pit slot before you even leave home.</p>
+      <span class="demo-badge" data-reveal>Live-Capacity Demo · Static Mock Data</span>
+      <div class="split">
+        <div class="panel" data-reveal>
+          <h3>Live Bay Availability</h3>
+          <p class="panel-sub">Express 15-min slots · auto-lock on book</p>
+          <div class="grid" role="table" aria-label="Service bay availability">
+            <div class="cell head"></div><div class="cell head">BFS Bangi</div><div class="cell head">BFS Shah Alam</div><div class="cell head">BFS Penang</div>
+            <div class="cell time">09:00</div><div class="cell slot avail">Free</div><div class="cell slot booked">Booked</div><div class="cell slot avail">Free</div>
+            <div class="cell time">09:15</div><div class="cell slot booked">Booked</div><div class="cell slot avail">Free</div><div class="cell slot avail">Free</div>
+            <div class="cell time">09:30</div><div class="cell slot avail">Free</div><div class="cell slot avail">Free</div><div class="cell slot booked">Booked</div>
+            <div class="cell time">09:45</div><div class="cell slot avail">Free</div><div class="cell slot booked">Booked</div><div class="cell slot avail">Free</div>
+            <div class="cell time">10:00</div><div class="cell slot booked">Booked</div><div class="cell slot avail">Free</div><div class="cell slot avail">Free</div>
+            <div class="cell time">10:15</div><div class="cell slot avail">Free</div><div class="cell slot avail">Free</div><div class="cell slot booked">Booked</div>
+          </div>
+          <div class="legend"><span><i class="dot a"></i> Available</span><span><i class="dot b"></i> Locked / Booked</span></div>
+        </div>
+        <div class="panel" data-reveal>
+          <h3>Upcoming Events</h3>
+          <p class="panel-sub">BFS activation calendar</p>
+          <div class="cal">
+            <div class="date-card"><div class="dc-date"><div class="dc-day">11</div><div class="dc-mon">Jul</div></div><div class="dc-body"><p class="dc-title">Penang Bike Culture Moto Fest</p><p class="dc-loc">Penang · Mobile Pit Booth</p></div></div>
+            <div class="date-card"><div class="dc-date"><div class="dc-day">23</div><div class="dc-mon">Aug</div></div><div class="dc-body"><p class="dc-title">MSF Superbikes @ Sepang</p><p class="dc-loc">Sepang · Booth B3</p></div></div>
+            <div class="date-card"><div class="dc-date"><div class="dc-day">05</div><div class="dc-mon">Sep</div></div><div class="dc-body"><p class="dc-title">Klang Valley Night Ride</p><p class="dc-loc">Shah Alam · Meet Point</p></div></div>
+            <div class="date-card"><div class="dc-date"><div class="dc-day">19</div><div class="dc-mon">Sep</div></div><div class="dc-body"><p class="dc-title">Malaysia Moto GP Support</p><p class="dc-loc">Sepang · Paddock</p></div></div>
+          </div>
+          <div class="event-cta"><p>Book trackside express service at <em>Sepang Booth B3</em></p><a href="#">Reserve Event Slot</a></div>
+        </div>
+      </div>
+    </div>
+    <script>(function(){var els=document.querySelectorAll('#booking [data-reveal]');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}var io=new IntersectionObserver(function(en){en.forEach(function(e,i){if(e.isIntersecting){setTimeout(function(){e.target.classList.add('in');},i*90);io.unobserve(e.target);}});},{threshold:0.18});els.forEach(function(e){io.observe(e);});document.querySelectorAll('#booking .cell.slot.avail').forEach(function(slot){slot.addEventListener('click',function(){if(slot.classList.contains('booked'))return;slot.classList.remove('avail');slot.classList.add('booked');slot.textContent='Yours';});});})();</script>
+  </section>
+
+  <!-- SECTION 5: Dynamic Packages -->
+  <section id="packages">
+    <style>
+      #packages { --hair: 1px solid rgba(240,235,227,0.15);
+        font-family: 'Inter', system-ui, sans-serif; color: var(--ivory);
+        background: radial-gradient(120% 80% at 50% -10%, rgba(201,169,110,0.08), transparent 60%), linear-gradient(180deg, var(--navy-1) 0%, var(--navy-2) 55%, var(--ink) 100%);
+        padding: 7rem 8vw; position: relative; overflow: hidden; }
+      #packages .pk-inner { max-width: 1200px; margin: 0 auto; }
+      #packages .pk-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 1rem; }
+      #packages .pk-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.05; margin: 0 0 0.75rem; color: var(--ivory); }
+      #packages .pk-title em { font-style: italic; color: var(--gold); }
+      #packages .pk-lede { font-weight: 300; font-size: 1rem; line-height: 1.6; color: var(--ivory-dim); max-width: 56ch; margin: 0 0 2.5rem; }
+      #packages .pk-sync { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cyan); border: var(--hair); border-radius: 999px; padding: 0.4rem 0.85rem; margin-bottom: 2.5rem; background: rgba(91,164,180,0.06); }
+      #packages .pk-sync .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 0 rgba(91,164,180,0.5); animation: pk-pulse 2.4s ease-out infinite; }
+      @keyframes pk-pulse { 0% { box-shadow: 0 0 0 0 rgba(91,164,180,0.45); } 70% { box-shadow: 0 0 0 8px rgba(91,164,180,0); } 100% { box-shadow: 0 0 0 0 rgba(91,164,180,0); } }
+      #packages .pk-promo { position: relative; display: flex; align-items: center; gap: 1rem; border: 1px solid var(--gold-dim); border-radius: 10px; padding: 1.1rem 1.5rem; margin-bottom: 3rem; background: linear-gradient(90deg, rgba(201,169,110,0.14), rgba(201,169,110,0.03)); overflow: hidden; }
+      #packages .pk-promo::before { content:""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(201,169,110,0.10) 50%, transparent 70%); transform: translateX(-100%); animation: pk-shine 6s ease-in-out infinite; }
+      @keyframes pk-shine { 0%,60% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+      #packages .pk-promo .pk-ribbon { flex: none; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); background: var(--gold); padding: 0.4rem 0.7rem; border-radius: 4px; font-weight: 600; }
+      #packages .pk-promo .pk-promo-text { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400; color: var(--ivory); }
+      #packages .pk-promo .pk-promo-text b { color: var(--gold); font-weight: 400; }
+      #packages .pk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+      #packages .pk-card { position: relative; display: flex; flex-direction: column; border: var(--hair); border-radius: 12px; padding: 1.75rem 1.5rem 1.5rem; background: linear-gradient(180deg, var(--navy-3) 0%, var(--navy-2) 100%); transition: transform 0.4s cubic-bezier(.2,.7,.2,1), border-color 0.4s ease, box-shadow 0.4s ease; opacity: 0; transform: translateY(28px); }
+      #packages .pk-card.in { opacity: 1; transform: translateY(0); }
+      #packages .pk-card:hover { transform: translateY(-8px); border-color: var(--gold-dim); box-shadow: 0 18px 40px -18px rgba(201,169,110,0.45); }
+      #packages .pk-card.featured { border-color: var(--gold-dim); box-shadow: 0 0 0 1px var(--gold-dim) inset; }
+      #packages .pk-card .pk-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan); margin-bottom: 0.6rem; }
+      #packages .pk-card .pk-name { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 1.6rem; line-height: 1.1; margin: 0 0 1rem; color: var(--ivory); }
+      #packages .pk-card .pk-includes { list-style: none; padding: 0; margin: 0 0 1.5rem; flex: 1; }
+      #packages .pk-card .pk-includes li { position: relative; padding-left: 1.1rem; font-weight: 300; font-size: 0.92rem; line-height: 1.5; color: var(--ivory-dim); margin-bottom: 0.5rem; }
+      #packages .pk-card .pk-includes li::before { content:""; position: absolute; left: 0; top: 0.55em; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+      #packages .pk-card .pk-price-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: 1.25rem; border-top: var(--hair); margin-bottom: 1.25rem; }
+      #packages .pk-card .pk-price { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 2.6rem; line-height: 1; color: var(--gold); }
+      #packages .pk-card .pk-price .cur { font-size: 1.3rem; vertical-align: top; margin-right: 0.1rem; }
+      #packages .pk-card .pk-duration { flex: none; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ivory); border: var(--hair); border-radius: 999px; padding: 0.35rem 0.7rem; background: rgba(240,235,227,0.04); }
+      #packages .pk-card .pk-duration b { color: var(--cyan); font-weight: 400; }
+      #packages .pk-card .pk-cta { appearance: none; cursor: pointer; width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); background: var(--gold); border: none; border-radius: 6px; padding: 0.9rem 1rem; transition: background 0.3s ease, transform 0.2s ease; }
+      #packages .pk-card .pk-cta:hover { background: #d8bc88; transform: translateY(-2px); }
+      #packages .pk-card .pk-cta:active { transform: translateY(0); }
+      @media (max-width: 920px) { #packages .pk-grid { grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; } #packages .pk-promo { flex-direction: column; align-items: flex-start; gap: 0.75rem; } }
+      @media (prefers-reduced-motion: reduce) { #packages .pk-card { opacity: 1; transform: none; transition: none; } #packages .pk-sync .dot, #packages .pk-promo::before { animation: none; } }
+    </style>
+    <div class="pk-inner">
+      <p class="pk-eyebrow">Dynamic Preset Packages · Estimations &amp; Promos</p>
+      <h2 class="pk-title">Express Service, <em>Transparently Priced</em></h2>
+      <p class="pk-lede">Standardized express packages with live pricing and estimated duration, pushed to the Pitstop Hero booking page the moment HQ updates the catalog in the CRM.</p>
+      <div class="pk-sync"><span class="dot"></span> Synced with Webmax — Live catalog</div>
+      <div class="pk-promo"><span class="pk-ribbon">Merdeka Promo</span><span class="pk-promo-text">Free <b>chain adjustment</b> with every oil change — limited time only.</span></div>
+      <div class="pk-grid">
+        <article class="pk-card featured">
+          <p class="pk-tag">Package A</p>
+          <h3 class="pk-name">Sprinta Lube + Filter</h3>
+          <ul class="pk-includes"><li>Shell Sprinta 4T engine oil</li><li>OEM-grade oil filter replacement</li><li>Fluid level &amp; chain inspection</li></ul>
+          <div class="pk-price-row"><span class="pk-price"><span class="cur">RM</span>45</span><span class="pk-duration">Est. <b>12 Mins</b></span></div>
+          <button class="pk-cta" type="button">Book</button>
+        </article>
+        <article class="pk-card">
+          <p class="pk-tag">Package B</p>
+          <h3 class="pk-name">CVT Drive Belt Replacement</h3>
+          <ul class="pk-includes"><li>Genuine CVT drive belt</li><li>Clutch &amp; variator servicing</li><li>Test ride &amp; tension calibration</li></ul>
+          <div class="pk-price-row"><span class="pk-price"><span class="cur">RM</span>120</span><span class="pk-duration">Est. <b>35 Mins</b></span></div>
+          <button class="pk-cta" type="button">Book</button>
+        </article>
+        <article class="pk-card">
+          <p class="pk-tag">Package C</p>
+          <h3 class="pk-name">Express Tire + Chain Combo</h3>
+          <ul class="pk-includes"><li>Tire pressure &amp; tread check</li><li>Chain clean, lube &amp; tensioning</li><li>Sprocket wear assessment</li></ul>
+          <div class="pk-price-row"><span class="pk-price"><span class="cur">RM</span>75</span><span class="pk-duration">Est. <b>20 Mins</b></span></div>
+          <button class="pk-cta" type="button">Book</button>
+        </article>
+      </div>
+    </div>
+    <script>(function(){var cards=document.querySelectorAll('#packages .pk-card');if(!('IntersectionObserver' in window)){cards.forEach(function(c){c.classList.add('in');});return;}var io=new IntersectionObserver(function(en){en.forEach(function(e,i){if(e.isIntersecting){var el=e.target;setTimeout(function(){el.classList.add('in');},i*90);io.unobserve(el);}});},{threshold:0.18});cards.forEach(function(c){io.observe(c);});})();</script>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="border-top:1px solid var(--hairline); padding:3rem 8vw; background:var(--ink);">
+    <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <div style="font-family:'Cormorant Garamond',serif; font-size:1.25rem; color:var(--ivory);">Pitstop <span style="color:var(--gold);">Hero</span> · BFS</div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:0.56rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--ivory-dim);">ERP-PILOT · CRM Overview · Local Build v0.1</div>
+    </div>
+  </footer>
+
+</body>
+</html>
