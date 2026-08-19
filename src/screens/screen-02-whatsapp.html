@@ -1,0 +1,302 @@
+<div class="screen" id="screen-whatsapp">
+  <style>
+    #screen-whatsapp {
+      color: var(--ivory);
+      background:
+        radial-gradient(120% 50% at 50% 0%, rgba(91,164,180,0.07), transparent 55%),
+        linear-gradient(180deg, var(--navy-1), var(--navy-2) 55%, var(--navy-3));
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1.5rem 1.1rem 2rem;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 300;
+      box-sizing: border-box;
+    }
+    #screen-whatsapp * { box-sizing: border-box; }
+    #screen-whatsapp .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin: 0;
+    }
+    #screen-whatsapp .title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: 1.9rem; line-height: 1.1; margin: 0.2rem 0 0; color: var(--ivory);
+    }
+
+    /* chat mock */
+    #screen-whatsapp .chat {
+      background: #0c141c;
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    #screen-whatsapp .chat-head {
+      display:flex; align-items:center; gap:0.6rem;
+      padding: 0.7rem 0.9rem;
+      background: linear-gradient(180deg, var(--navy-3), var(--navy-2));
+      border-bottom: 1px solid var(--hairline);
+    }
+    #screen-whatsapp .chat-head .wa-ico {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #25D366; display:flex; align-items:center; justify-content:center;
+      flex: 0 0 auto;
+    }
+    #screen-whatsapp .chat-head .wa-ico svg { width:18px;height:18px; }
+    #screen-whatsapp .chat-head .who b { font-weight:400; font-size:0.85rem; color:var(--ivory); display:block; }
+    #screen-whatsapp .chat-head .who span { font-size:0.62rem; color:var(--ivory-dim); }
+
+    #screen-whatsapp .chat-body {
+      padding: 0.9rem 0.8rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      min-height: 150px;
+      background-image: radial-gradient(rgba(240,235,227,0.025) 1px, transparent 1px);
+      background-size: 14px 14px;
+    }
+    #screen-whatsapp .bubble {
+      max-width: 82%;
+      padding: 0.6rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      position: relative;
+      animation: wa-in 0.35s ease both;
+    }
+    @keyframes wa-in { from { opacity:0; transform: translateY(6px);} to {opacity:1; transform:none;} }
+    #screen-whatsapp .bubble.in {
+      align-self: flex-start;
+      background: #1c2733;
+      color: var(--ivory);
+      border-bottom-left-radius: 4px;
+      border-left: 2px solid var(--gold);
+    }
+    #screen-whatsapp .bubble .meta {
+      display:block; margin-top:0.35rem; font-size:0.55rem; color: var(--ivory-dim); text-align:right;
+    }
+    #screen-whatsapp .bubble .cta {
+      margin-top:0.5rem; display:inline-block;
+      background: var(--gold); color: var(--ink);
+      font-size:0.66rem; padding:0.3rem 0.7rem; border-radius:999px; font-weight:400;
+    }
+    #screen-whatsapp .variant-note {
+      align-self:center; font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase;
+      color: var(--cyan); margin: 0.1rem 0;
+    }
+
+    /* estimator */
+    #screen-whatsapp .estimator {
+      background: linear-gradient(180deg, var(--navy-3), var(--navy-2));
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
+      padding: 1.1rem 1.1rem 1.2rem;
+    }
+    #screen-whatsapp .est-head {
+      display:flex; align-items:baseline; justify-content:space-between; margin-bottom:0.9rem;
+    }
+    #screen-whatsapp .est-head h3 {
+      font-family:'JetBrains Mono', monospace; font-size:0.6rem; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--gold); margin:0; font-weight:400;
+    }
+    #screen-whatsapp .est-head .odo {
+      font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:var(--ivory);
+    }
+    #screen-whatsapp .est-head .odo b { color: var(--gold); }
+
+    #screen-whatsapp .gauge {
+      position: relative;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--navy-1);
+      border: 1px solid var(--hairline);
+      overflow: hidden;
+      margin-bottom: 0.4rem;
+    }
+    #screen-whatsapp .gauge .zone-safe { position:absolute; left:0; top:0; bottom:0; width:60%; background: linear-gradient(90deg, rgba(91,164,180,0.18), rgba(91,164,180,0.05)); }
+    #screen-whatsapp .gauge .zone-warn { position:absolute; left:60%; top:0; bottom:0; width:20%; background: rgba(201,169,110,0.25); }
+    #screen-whatsapp .gauge .zone-due { position:absolute; left:80%; top:0; bottom:0; right:0; background: rgba(234,67,53,0.28); }
+    #screen-whatsapp .gauge .fill {
+      position:absolute; left:0; top:0; bottom:0;
+      background: linear-gradient(90deg, var(--cyan), var(--gold));
+      border-radius:999px 0 0 999px;
+      transition: width 0.18s ease, background 0.18s ease;
+    }
+    #screen-whatsapp .gauge .marker {
+      position:absolute; top:-3px; bottom:-3px; width:3px;
+      background: var(--ivory); border-radius:2px;
+      box-shadow: 0 0 6px rgba(240,235,227,0.8);
+      transition: left 0.18s ease;
+    }
+    #screen-whatsapp .scale {
+      display:flex; justify-content:space-between;
+      font-family:'JetBrains Mono', monospace; font-size:0.55rem; color:var(--ivory-dim); margin-top:0.2rem;
+    }
+
+    #screen-whatsapp .slider-wrap { margin-top: 1rem; }
+    #screen-whatsapp .slider-wrap label {
+      display:block; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--ivory-dim); margin-bottom:0.5rem;
+    }
+    #screen-whatsapp input[type=range] {
+      -webkit-appearance:none; appearance:none;
+      width:100%; height:4px; border-radius:999px;
+      background: var(--hairline); outline:none;
+    }
+    #screen-whatsapp input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance:none; appearance:none;
+      width:22px; height:22px; border-radius:50%;
+      background: var(--gold); cursor:pointer; border:2px solid var(--ink);
+      box-shadow:0 0 0 1px var(--gold-dim);
+    }
+    #screen-whatsapp input[type=range]::-moz-range-thumb {
+      width:22px; height:22px; border-radius:50%;
+      background: var(--gold); cursor:pointer; border:2px solid var(--ink);
+    }
+    #screen-whatsapp .stepper { display:flex; gap:0.6rem; margin-top:0.8rem; }
+    #screen-whatsapp .stepper button {
+      flex:1; background: var(--navy-1); color:var(--ivory);
+      border:1px solid var(--hairline); border-radius:10px;
+      padding:0.55rem; font-size:0.78rem; cursor:pointer; font-family:'Inter';
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    #screen-whatsapp .stepper button:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+    #screen-whatsapp .status {
+      margin-top:0.9rem; padding:0.6rem 0.8rem; border-radius:10px;
+      font-size:0.72rem; line-height:1.4;
+      border:1px solid var(--hairline);
+      display:flex; align-items:center; gap:0.55rem;
+    }
+    #screen-whatsapp .status .pip { width:8px;height:8px;border-radius:50%; flex:0 0 auto; }
+    #screen-whatsapp .status.safe { background: rgba(91,164,180,0.1); }
+    #screen-whatsapp .status.safe .pip { background: var(--cyan); box-shadow:0 0 8px rgba(91,164,180,0.7); }
+    #screen-whatsapp .status.warn { background: rgba(201,169,110,0.12); }
+    #screen-whatsapp .status.warn .pip { background: var(--gold); box-shadow:0 0 8px rgba(201,169,110,0.7); }
+    #screen-whatsapp .status.due { background: rgba(234,67,53,0.14); border-color: rgba(234,67,53,0.4); }
+    #screen-whatsapp .status.due .pip { background:#EA4335; box-shadow:0 0 8px rgba(234,67,53,0.8); }
+  </style>
+
+  <div>
+    <p class="eyebrow">BFS ERP · Service CRM</p>
+    <h1 class="title">Mileage Reminders</h1>
+  </div>
+
+  <!-- WHATSAPP CHAT -->
+  <div class="chat">
+    <div class="chat-head">
+      <div class="wa-ico">
+        <svg viewBox="0 0 24 24" fill="#fff" aria-label="WhatsApp">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2zm0 1.8c4.47 0 8.11 3.64 8.11 8.11 0 4.47-3.64 8.11-8.11 8.11-1.36 0-2.69-.36-3.86-1.04l-.28-.17-3.11.82.83-3.04-.18-.29a8.07 8.07 0 0 1-1.24-4.33c0-4.47 3.64-8.11 8.11-8.11zm-4.6 4.45c-.24 0-.62.09-.94.43-.32.34-1.23 1.2-1.23 2.93 0 1.73 1.26 3.4 1.44 3.64.18.24 2.46 3.76 5.96 5.27.83.36 1.48.57 1.99.73.84.26 1.6.22 2.2.13.67-.09 2.07-.84 2.36-1.66.29-.82.29-1.52.2-1.66-.09-.14-.32-.22-.67-.39-.35-.17-2.07-1.02-2.39-1.14-.32-.12-.55-.18-.78.18-.23.36-.9 1.14-1.1 1.38-.2.24-.4.27-.74.09-.34-.18-1.45-.53-2.76-1.7-.99-.86-1.66-1.92-1.86-2.24-.19-.32-.02-.49.15-.65.16-.16.35-.4.53-.6.17-.2.23-.34.35-.57.11-.23.06-.43-.03-.6-.09-.17-.78-1.88-.99-2.5z"/>
+        </svg>
+      </div>
+      <div class="who"><b>BFS Bangi Service</b><span>WhatsApp · last seen today</span></div>
+    </div>
+    <div class="chat-body">
+      <div class="bubble in" id="wa-oil">
+        Hey <b>Faiz</b>, it's been 60 days since your last oil change at BFS Bangi. Your <b>Yamaha Y15ZR</b> is likely due for fresh oil! Book a 15-min express slot today and get a free chain adjustment.
+        <span class="meta">Today 09:14 ✓✓</span>
+        <span class="cta">Book Express Slot</span>
+      </div>
+      <span class="variant-note" id="wa-toggle-label">Variant · Oil Due</span>
+      <div class="bubble in" id="wa-reeng" style="display:none">
+        We haven't seen your bike in a while! Is she resting in the garage? Drop by for a quick free safety inspection before your next weekend ride.
+        <span class="meta">Today 09:14 ✓✓</span>
+        <span class="cta">Book Inspection</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MILEAGE ESTIMATOR -->
+  <div class="estimator">
+    <div class="est-head">
+      <h3>Mileage Estimator</h3>
+      <span class="odo">Odo <b id="odo-val">2,650</b> km</span>
+    </div>
+
+    <div class="gauge">
+      <div class="zone-safe"></div>
+      <div class="zone-warn"></div>
+      <div class="zone-due"></div>
+      <div class="fill" id="gauge-fill" style="width:80%"></div>
+      <div class="marker" id="gauge-marker" style="left:80%"></div>
+    </div>
+    <div class="scale"><span>0</span><span>2,000</span><span>3,000</span><span>4,000</span></div>
+
+    <div class="slider-wrap">
+      <label for="odo-range">Drag odometer (km since last oil)</label>
+      <input type="range" id="odo-range" min="0" max="4000" step="50" value="2650" />
+    </div>
+    <div class="stepper">
+      <button id="odo-minus" type="button">− 50 km</button>
+      <button id="odo-plus" type="button">+ 50 km</button>
+    </div>
+
+    <div class="status warn" id="odo-status">
+      <span class="pip"></span>
+      <span id="odo-status-text">Approaching service window — oil due soon.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var screen = document.getElementById('screen-whatsapp');
+    if (!screen) return;
+    var range = document.getElementById('odo-range');
+    var fill = document.getElementById('gauge-fill');
+    var marker = document.getElementById('gauge-marker');
+    var odoVal = document.getElementById('odo-val');
+    var status = document.getElementById('odo-status');
+    var statusText = document.getElementById('odo-status-text');
+    var oilBubble = document.getElementById('wa-oil');
+    var reengBubble = document.getElementById('wa-reeng');
+    var toggleLabel = document.getElementById('wa-toggle-label');
+    var minus = document.getElementById('odo-minus');
+    var plus = document.getElementById('odo-plus');
+
+    var MAX = 4000;
+
+    function fmt(n){ return n.toLocaleString('en-US'); }
+
+    function render(km){
+      var pct = Math.max(0, Math.min(100, (km / MAX) * 100));
+      fill.style.width = pct + '%';
+      marker.style.left = pct + '%';
+      odoVal.textContent = fmt(km);
+
+      var cls, txt, showOil;
+      if (km < 2000) {
+        cls = 'safe'; txt = 'Healthy — ' + fmt(2000 - km) + ' km until oil service window. Riding safe.'; showOil = false;
+      } else if (km <= 3000) {
+        cls = 'warn'; txt = 'Approaching service window — oil due soon (' + fmt(km) + '/3,000 km).'; showOil = true;
+      } else {
+        cls = 'due'; txt = 'Oil is OVERDUE — ' + fmt(km - 3000) + ' km past the 3,000 km window. Book now.'; showOil = true;
+      }
+      status.className = 'status ' + cls;
+      statusText.textContent = txt;
+
+      // flip chat variant: re-engagement only when very low / lapsed usage
+      if (km <= 200) {
+        oilBubble.style.display = 'none';
+        reengBubble.style.display = 'block';
+        toggleLabel.textContent = 'Variant · Re-engagement';
+      } else {
+        oilBubble.style.display = 'block';
+        reengBubble.style.display = 'none';
+        toggleLabel.textContent = 'Variant · Oil Due';
+      }
+    }
+
+    function setKm(km){
+      km = Math.max(0, Math.min(MAX, km));
+      range.value = km;
+      render(km);
+    }
+
+    range.addEventListener('input', function(){ render(parseInt(range.value,10)); });
+    minus.addEventListener('click', function(){ setKm(parseInt(range.value,10) - 50); });
+    plus.addEventListener('click', function(){ setKm(parseInt(range.value,10) + 50); });
+
+    render(parseInt(range.value,10));
+  })();
+</script>

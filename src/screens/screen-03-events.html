@@ -1,0 +1,427 @@
+<div class="screen" id="screen-events">
+  <style>
+    #screen-events {
+      --maxw: 420px;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--ivory);
+      background:
+        radial-gradient(120% 60% at 85% -10%, rgba(201,169,110,0.07), transparent 55%),
+        linear-gradient(180deg, var(--navy-1) 0%, var(--navy-2) 60%, var(--navy-3) 100%);
+      min-height: 100%;
+      padding: 18px 16px 30px;
+      box-sizing: border-box;
+    }
+    @media (min-width: 480px) { #screen-events { max-width: var(--maxw); margin: 0 auto; } }
+    #screen-events * { box-sizing: border-box; }
+
+    /* Eyebrow / titles */
+    #screen-events .eyebrow {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 6px;
+    }
+    #screen-events .screen-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: 1.9rem; line-height: 1.05; margin: 0 0 4px; color: var(--ivory);
+    }
+    #screen-events .screen-sub {
+      font-weight: 300; font-size: 0.8rem; color: var(--ivory-dim);
+      margin: 0 0 16px; letter-spacing: 0.01em;
+    }
+
+    /* Section label with hairline rule */
+    #screen-events .section-label {
+      display: flex; align-items: center; gap: 10px; margin: 22px 0 12px;
+    }
+    #screen-events .section-label span {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-dim); white-space: nowrap;
+    }
+    #screen-events .section-label::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+
+    /* Pipeline — scan -> parse -> blast */
+    #screen-events .pipeline {
+      display: flex; align-items: stretch; gap: 6px; margin: 0 0 14px;
+    }
+    #screen-events .stage {
+      flex: 1; border: 1px solid var(--hairline); border-radius: 12px;
+      padding: 12px 8px; text-align: center; position: relative;
+      background: linear-gradient(180deg, var(--navy-3), rgba(30,45,63,0.35));
+      display: flex; flex-direction: column; align-items: center; gap: 7px;
+    }
+    #screen-events .stage .ico { width: 26px; height: 26px; color: var(--gold); }
+    #screen-events .stage .ico svg { width: 100%; height: 100%; display: block; }
+    #screen-events .stage .st-name {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.56rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--ivory);
+    }
+    #screen-events .stage .st-meta { font-size: 0.58rem; color: var(--ivory-dim); line-height: 1.3; }
+    #screen-events .stage .arrow {
+      position: absolute; right: -9px; top: 50%; transform: translateY(-50%);
+      color: var(--gold-dim); z-index: 2; width: 12px; height: 12px;
+    }
+    #screen-events .stage:last-child .arrow { display: none; }
+    #screen-events .stage.scanning { border-color: var(--gold); }
+    #screen-events .stage.scanning .ico { color: var(--gold); animation: ev-scan 1s ease-in-out infinite; }
+    @keyframes ev-scan { 0%,100% { opacity: 0.55; transform: scale(0.94);} 50% { opacity: 1; transform: scale(1.08);} }
+
+    /* Radar sweep inside scan stage */
+    #screen-events .radar { position: relative; width: 26px; height: 26px; }
+    #screen-events .radar .ring { position:absolute; inset:0; border-radius:50%; border:1px solid var(--gold-dim); }
+    #screen-events .radar .sweep {
+      position:absolute; inset:0; border-radius:50%; overflow:hidden;
+      -webkit-mask: radial-gradient(circle, #000 99%, transparent 100%); mask: radial-gradient(circle, #000 99%, transparent 100%);
+    }
+    #screen-events .radar .sweep::after {
+      content:""; position:absolute; left:50%; top:50%; width:50%; height:2px;
+      background: linear-gradient(90deg, var(--gold), transparent); transform-origin: 0 50%;
+      animation: ev-sweep 1.4s linear infinite;
+    }
+    @keyframes ev-sweep { to { transform: rotate(360deg); } }
+
+    /* Sync / scan pill */
+    #screen-events .sync-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.56rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--cyan);
+      border: 1px solid rgba(91,164,180,0.35); border-radius: 999px; padding: 5px 11px;
+      background: rgba(91,164,180,0.06);
+    }
+    #screen-events .sync-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--cyan);
+      box-shadow: 0 0 0 0 rgba(91,164,180,0.55); animation: ev-pulse 2.4s ease-out infinite;
+    }
+    @keyframes ev-pulse { 0% { box-shadow: 0 0 0 0 rgba(91,164,180,0.5);} 70% { box-shadow: 0 0 0 7px rgba(91,164,180,0);} 100% { box-shadow: 0 0 0 0 rgba(91,164,180,0);} }
+
+    #screen-events .scan-row { display:flex; align-items:center; gap:10px; margin-bottom: 4px; flex-wrap: wrap; }
+    #screen-events .rescan-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink); background: var(--gold);
+      border: none; border-radius: 999px; padding: 7px 13px; cursor: pointer; font-weight: 600;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+    #screen-events .rescan-btn:active { transform: translateY(1px); background: var(--gold-dim); }
+    #screen-events .ingest-note { font-size: 0.66rem; color: var(--ivory-dim); }
+
+    /* Broadcast engine note */
+    #screen-events .engine {
+      border: 1px solid rgba(91,164,180,0.3); border-radius: 12px; padding: 11px 13px;
+      background: rgba(91,164,180,0.05); margin: 14px 0 2px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    #screen-events .engine .e-ico { color: var(--cyan); flex: 0 0 auto; width: 18px; height: 18px; margin-top: 1px; }
+    #screen-events .engine p {
+      margin: 0; font-size: 0.72rem; font-weight: 300; color: var(--ivory-dim); line-height: 1.5;
+    }
+    #screen-events .engine b { color: var(--cyan); font-weight: 400; }
+
+    /* Event cards */
+    #screen-events .event {
+      border: 1px solid var(--hairline); border-radius: 14px; margin: 0 0 11px;
+      background: linear-gradient(180deg, var(--navy-3) 0%, rgba(30,45,63,0.4) 100%);
+      overflow: hidden; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    #screen-events .event.is-open { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 24px rgba(201,169,110,0.1); }
+    #screen-events .event-head {
+      display: flex; align-items: center; gap: 11px; padding: 13px 14px; cursor: pointer;
+    }
+    #screen-events .event-head:active { background: rgba(240,235,227,0.03); }
+    #screen-events .event-main { flex: 1; min-width: 0; }
+    #screen-events .event-name {
+      font-family: 'Cormorant Garamond', serif; font-size: 1.22rem; font-weight: 400;
+      color: var(--ivory); margin: 0; line-height: 1.12;
+    }
+    #screen-events .event-meta {
+      margin: 5px 0 0; font-size: 0.66rem; color: var(--ivory-dim);
+      display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center;
+    }
+    #screen-events .event-meta .loc::before { content: "◆ "; color: var(--gold); }
+    #screen-events .event-meta .date { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; color: var(--gold-dim); }
+    #screen-events .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; padding: 0 14px; }
+    #screen-events .tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--cyan); border: 1px solid rgba(91,164,180,0.3);
+      border-radius: 999px; padding: 3px 8px; background: rgba(91,164,180,0.06);
+    }
+    #screen-events .chev {
+      flex: 0 0 auto; width: 16px; height: 16px; color: var(--gold); transition: transform 0.3s ease;
+    }
+    #screen-events .event.is-open .chev { transform: rotate(180deg); }
+
+    /* Expandable body */
+    #screen-events .event-body {
+      max-height: 0; opacity: 0; overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease;
+    }
+    #screen-events .event.is-open .event-body { max-height: 520px; opacity: 1; }
+    #screen-events .event-inner { padding: 2px 14px 15px; }
+
+    /* Blast preview bubble */
+    #screen-events .blast-preview {
+      background: #0c141c; border: 1px solid var(--hairline); border-left: 2px solid var(--gold);
+      border-radius: 12px; padding: 11px 13px; margin: 6px 0 13px;
+      font-size: 0.76rem; line-height: 1.5; color: var(--ivory);
+      position: relative; animation: ev-in 0.35s ease both;
+    }
+    @keyframes ev-in { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none; } }
+    #screen-events .blast-preview .wa {
+      display: inline-flex; align-items: center; gap: 5px; margin-bottom: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.52rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold);
+    }
+    #screen-events .blast-preview .wa svg { width: 13px; height: 13px; }
+
+    #screen-events .blast-btn {
+      width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 0.64rem;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink);
+      background: var(--gold); border: none; border-radius: 10px; padding: 12px; cursor: pointer;
+      font-weight: 600; transition: background 0.2s ease, transform 0.15s ease;
+    }
+    #screen-events .blast-btn:active { transform: translateY(1px); background: var(--gold-dim); }
+
+    /* Sent state */
+    #screen-events .blast-sent {
+      display: none; align-items: center; gap: 10px; border: 1px solid var(--gold);
+      border-radius: 12px; padding: 12px 14px; background: rgba(201,169,110,0.09);
+      animation: ev-in 0.35s ease both;
+    }
+    #screen-events .event.is-sent .blast-preview,
+    #screen-events .event.is-sent .blast-btn { display: none; }
+    #screen-events .event.is-sent .blast-sent { display: flex; }
+    #screen-events .blast-sent .chk {
+      width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--gold);
+      color: var(--gold); display: grid; place-items: center; flex: none; font-size: 0.85rem;
+    }
+    #screen-events .blast-sent .bs-main { font-size: 0.82rem; color: var(--ivory); margin: 0; line-height: 1.3; }
+    #screen-events .blast-sent .bs-sub {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.54rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold-dim); margin: 2px 0 0;
+    }
+  </style>
+
+  <!-- Header -->
+  <p class="eyebrow">BFS ERP · Activation Manager</p>
+  <h1 class="screen-title">Local Event Radar</h1>
+  <p class="screen-sub">AI agent ingests motorsport &amp; bike-meet calendars, then fires targeted rider blasts.</p>
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <div class="stage" id="evStageScan">
+      <div class="radar" aria-hidden="true">
+        <div class="ring"></div>
+        <div class="sweep"></div>
+      </div>
+      <div class="st-name">AI Scan</div>
+      <div class="st-meta">Every 2 wks</div>
+      <span class="arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
+    </div>
+    <div class="stage">
+      <div class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+      </div>
+      <div class="st-name">Parse</div>
+      <div class="st-meta">Date · Loc · Bike</div>
+      <span class="arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
+    </div>
+    <div class="stage">
+      <div class="ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5z"/></svg>
+      </div>
+      <div class="st-name">Blast</div>
+      <div class="st-meta">By region</div>
+    </div>
+  </div>
+
+  <!-- Scan control -->
+  <div class="scan-row">
+    <span class="sync-pill" role="status" aria-live="polite"><span class="sync-dot"></span>Auto-scan · Live</span>
+    <button class="rescan-btn" id="evRescan" type="button">Re-scan Now</button>
+    <span class="ingest-note" id="evIngest">Last scan 6 days ago · 4 events ingested</span>
+  </div>
+
+  <!-- Broadcast engine note -->
+  <div class="engine">
+    <svg class="e-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8"/></svg>
+    <p><b>Automated Broadcast Engine</b> cross-references each event's region &amp; target bike categories against the rider CRM, then pushes a tailored WhatsApp blast only to matching riders.</p>
+  </div>
+
+  <!-- Events -->
+  <div class="section-label"><span>Parsed Event Cards</span></div>
+
+  <div class="event" data-region="Penang" data-riders="214">
+    <div class="event-head" role="button" tabindex="0" aria-expanded="false">
+      <div class="event-main">
+        <h2 class="event-name">Penang Bike Culture Moto Fest</h2>
+        <p class="event-meta"><span class="date">JUL 11–12</span><span class="loc">Batu Kawan, Penang</span></p>
+      </div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="tags"><span class="tag">Cub Bike</span><span class="tag">Scooter</span><span class="tag">Café Racer</span></div>
+    <div class="event-body">
+      <div class="event-inner">
+        <div class="blast-preview">
+          <span class="wa">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.4 4.6-1.2A10 10 0 1 0 12 2zm0 1.8a8.2 8.2 0 1 1 0 16.4 8.2 8.2 0 0 1 0-16.4zm-3.8 4.6c-.2 0-.5.07-.8.35-.3.28-1.1 1-1.1 2.6 0 1.55 1.13 3 .3 3.26l-.26.15-2.78.73.74-2.7-.16-.26a7.2 7.2 0 0 0-1.1-3.86C2.2 6.4 5.3 4.5 8.7 4.5c.9 0 1.7.1 2.4.3-.5.5-.9 1.1-1.9 1.3z"/></svg>
+            WhatsApp Blast Preview
+          </span>
+          Hey [Name]! BFS is heading to the Penang Moto Fest on July 11–12. Drop by our mobile pit booth for free tire pressure checks and express lube service. Tap here to reserve a trackside slot!
+        </div>
+        <button class="blast-btn" type="button">Send Blast</button>
+        <div class="blast-sent">
+          <div class="chk">✓</div>
+          <div>
+            <p class="bs-main" data-sent-text>Blast sent</p>
+            <p class="bs-sub">Automated Broadcast Engine</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="event" data-region="Klang Valley" data-riders="168">
+    <div class="event-head" role="button" tabindex="0" aria-expanded="false">
+      <div class="event-main">
+        <h2 class="event-name">MSF Superbikes @ Sepang</h2>
+        <p class="event-meta"><span class="date">AUG 2–3</span><span class="loc">Sepang Int. Circuit</span></p>
+      </div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="tags"><span class="tag">Supersport</span><span class="tag">Superbike</span><span class="tag">Track Day</span></div>
+    <div class="event-body">
+      <div class="event-inner">
+        <div class="blast-preview">
+          <span class="wa">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.4 4.6-1.2A10 10 0 1 0 12 2zm0 1.8a8.2 8.2 0 1 1 0 16.4 8.2 8.2 0 0 1 0-16.4z"/></svg>
+            WhatsApp Blast Preview
+          </span>
+          Track weekend, [Name]? BFS is trackside at the MSF Superbikes, Sepang Aug 2–3. Book our express lube &amp; tire service at Booth B3 before your session — skip the queue, ride more laps.
+        </div>
+        <button class="blast-btn" type="button">Send Blast</button>
+        <div class="blast-sent">
+          <div class="chk">✓</div>
+          <div>
+            <p class="bs-main" data-sent-text>Blast sent</p>
+            <p class="bs-sub">Automated Broadcast Engine</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="event" data-region="Shah Alam" data-riders="142">
+    <div class="event-head" role="button" tabindex="0" aria-expanded="false">
+      <div class="event-main">
+        <h2 class="event-name">Klang Valley Night Meet</h2>
+        <p class="event-meta"><span class="date">JUL 19</span><span class="loc">Shah Alam Civic</span></p>
+      </div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="tags"><span class="tag">Sport</span><span class="tag">Naked</span><span class="tag">Cruiser</span></div>
+    <div class="event-body">
+      <div class="event-inner">
+        <div class="blast-preview">
+          <span class="wa">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.4 4.6-1.2A10 10 0 1 0 12 2zm0 1.8a8.2 8.2 0 1 1 0 16.4 8.2 8.2 0 0 1 0-16.4z"/></svg>
+            WhatsApp Blast Preview
+          </span>
+          Night ride tonight, [Name]? BFS Shah Alam is open late at the KV Night Meet — free chain lube &amp; brake glance, plus 15% off express service booked on the spot.
+        </div>
+        <button class="blast-btn" type="button">Send Blast</button>
+        <div class="blast-sent">
+          <div class="chk">✓</div>
+          <div>
+            <p class="bs-main" data-sent-text>Blast sent</p>
+            <p class="bs-sub">Automated Broadcast Engine</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="event" data-region="Johor" data-riders="97">
+    <div class="event-head" role="button" tabindex="0" aria-expanded="false">
+      <div class="event-main">
+        <h2 class="event-name">Johor Bahru Bike Fest</h2>
+        <p class="event-meta"><span class="date">JUL 26</span><span class="loc">Danga Bay, Johor</span></p>
+      </div>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="tags"><span class="tag">Moped</span><span class="tag">Scooter</span><span class="tag">Modified</span></div>
+    <div class="event-body">
+      <div class="event-inner">
+        <div class="blast-preview">
+          <span class="wa">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.4 4.6-1.2A10 10 0 1 0 12 2zm0 1.8a8.2 8.2 0 1 1 0 16.4 8.2 8.2 0 0 1 0-16.4z"/></svg>
+            WhatsApp Blast Preview
+          </span>
+          Heading south, [Name]? BFS joins JB Bike Fest at Danga Bay Jul 26. Reserve a trackside slot for express lube &amp; free tire pressure check — first 50 riders get a free keychain tool.
+        </div>
+        <button class="blast-btn" type="button">Send Blast</button>
+        <div class="blast-sent">
+          <div class="chk">✓</div>
+          <div>
+            <p class="bs-main" data-sent-text>Blast sent</p>
+            <p class="bs-sub">Automated Broadcast Engine</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var screen = document.getElementById('screen-events');
+    if (!screen) return;
+    var events = screen.querySelectorAll('.event');
+    var rescan = document.getElementById('evRescan');
+    var ingest = document.getElementById('evIngest');
+    var stageScan = document.getElementById('evStageScan');
+
+    // Expand / collapse
+    events.forEach(function (ev) {
+      var head = ev.querySelector('.event-head');
+      head.addEventListener('click', function () { toggle(ev); });
+      head.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(ev); }
+      });
+
+      var btn = ev.querySelector('.blast-btn');
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var region = ev.getAttribute('data-region');
+        var riders = parseInt(ev.getAttribute('data-riders'), 10);
+        ev.classList.add('is-sent');
+        var sentText = ev.querySelector('[data-sent-text]');
+        sentText.textContent = 'Blast sent to ' + riders + ' riders in ' + region;
+      });
+    });
+
+    function toggle(ev) {
+      var open = ev.classList.toggle('is-open');
+      var head = ev.querySelector('.event-head');
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    // Fake re-scan: pulse the scan stage, then refresh ingest count
+    var scanning = false;
+    rescan.addEventListener('click', function () {
+      if (scanning) return;
+      scanning = true;
+      stageScan.classList.add('scanning');
+      ingest.textContent = 'Scanning calendars…';
+      rescan.disabled = true;
+      rescan.style.opacity = '0.6';
+      setTimeout(function () {
+        stageScan.classList.remove('scanning');
+        rescan.disabled = false;
+        rescan.style.opacity = '1';
+        scanning = false;
+        ingest.textContent = 'Scan complete · 4 events ingested · next in 8 days';
+      }, 1300);
+    });
+  })();
+</script>
